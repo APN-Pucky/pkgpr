@@ -71,8 +71,16 @@ if [ -z "${ACC}" ]; then
     exit 1
 fi
 
+# if no folder folder metadata/layout.conf exists abort, sicne must run on a gentoo repo
+
+if [ ! -f metadata/layout.conf ]; then
+    echo "No metadata/layout.conf found, not a gentoo repo"
+    exit 1
+fi
+
 OPWD=${PWD}
-echo "Adding files: ${FILES[@]}"
+echo "Adding files: ${FILES[@]} from ${OPWD}"
+
 
 pushd $(mktemp -d)
 # if COPY copy from that dir instead of clone fresh
@@ -91,13 +99,20 @@ git checkout -b ${NB}
 
 for file in ${FILES[@]}; do
     dfile=${file}
-    cp -r ${OPWD}/${file} ${dfile}
+    # rsync to merge
+    rsync -r ${OPWD}/${file} ${dfile}
+    # remove every .build file in the dir
+    find ${dfile} -name ".build" -exec rm -rf {} \;
     git add ${dfile}
 done
-pkgdev commit -m "${MESSAGE}"
+# if no message 
+if [ -z "${MESSAGE}" ]; then
+    pkgdev commit
+else
+    pkgdev commit -m "${MESSAGE}"
+fi
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${REPO}.git
+cat -
 git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
-
-cat - 
 
 popd
