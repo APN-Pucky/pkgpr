@@ -15,4 +15,4 @@ For instance
 user $ pkgpr -a APN-Pucky -r sci sci-physics/hoppet
 ```
 
-produces follwing [PR](https://github.com/gentoo/sci/pull/1242)
+produces follwing [PR](https://github.com/gentoo/sci/pull/1242).
