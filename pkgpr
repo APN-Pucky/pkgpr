@@ -120,8 +120,12 @@ if [ -z "${MESSAGE}" ]; then
 else
     pkgdev commit -m "${MESSAGE}"
 fi
-git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
-cat -
-git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
 
+git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
+
+read -p "Send PR? " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
+fi
 popd
