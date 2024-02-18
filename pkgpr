@@ -100,7 +100,7 @@ git checkout -b ${NB}
 for file in ${FILES[@]}; do
     dfile=${file}
     # rsync to merge
-    rsync -r ${OPWD}/${file} ${dfile}
+    rsync -r ${OPWD}/${file} $(dirname ${dfile})/
     # remove every .build file in the dir
     find ${dfile} -name ".build" -exec rm -rf {} \;
     git add ${dfile}
