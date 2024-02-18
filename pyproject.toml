@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "gentoo-pr"
+name = "pkgpr"
 version = "0.1.0"
 description = ""
 authors = ["Alexander Puck Neuwirth <alexander@neuwirth-informatik.de>"]
