@@ -27,6 +27,11 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
+    -ar|--account-repo)
+      AREPO="$3"
+      shift # past argument
+      shift # past value
+      ;;
     -c|--copy)
       COPY="$2"
       shift # past argument
@@ -65,6 +70,10 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if [ -z "${AREPO}" ]; then
+    AREPO=${REPO}
+fi
 
 if [ -z "${ACC}" ]; then
     echo "No account specified"
@@ -111,7 +120,7 @@ if [ -z "${MESSAGE}" ]; then
 else
     pkgdev commit -m "${MESSAGE}"
 fi
-git remote add pkgpr_${ACC} git@${URL}:${ACC}/${REPO}.git
+git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
 cat -
 git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
 
