@@ -48,12 +48,6 @@ while [[ $# -gt 0 ]]; do
         shift # past argument
         shift # past value
         ;;
-    # any amount of files
-    -f|--files)
-      FILES="$2"
-      shift # past argument
-      shift # past value
-      ;;
     # message
     -m|--message)
       MESSAGE="$2"
