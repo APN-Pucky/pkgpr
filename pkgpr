@@ -7,6 +7,7 @@ ORG="gentoo"
 REPO="gentoo"
 ACC=""
 URL="github.com"
+DESC="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
 FILES=()
 
 # from https://stackoverflow.com/a/14203146
@@ -39,6 +40,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -o|--org)
         ORG="$2"
+        shift # past argument
+        shift # past value
+        ;;
+    -d|--desc)
+        DESC="$2"
         shift # past argument
         shift # past value
         ;;
@@ -121,11 +127,19 @@ else
     pkgdev commit -m "${MESSAGE}"
 fi
 
+# TODO show changes once more
+
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
 
 read -p "Send PR? " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-  git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
+  git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="${DESC}"
+  # github does not use the options like gitlab
+  # check if github in URL
+  if [[ ${URL} == "github.com" ]]; then
+    echo "Github detected, opening PR"
+    gh pr create -R ${ORG}/${REPO} --fill --base ${BRANCH} --head ${ACC}:${NB} --body "${DESC}"
+  fi
 fi
 popd
