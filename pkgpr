@@ -13,6 +13,22 @@ FILES=()
 # from https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
   case $1 in
+    -h|--help)
+      echo "Usage: pkgpr [options] [files]"
+      echo "Options:"
+      echo "  -h, --help: Show this help"
+      echo "  -a, --account: Account to send PR to"
+      echo "  -u, --url: URL of the git server (default: github.com)"
+      echo "  -r, --repo: Repository to send PR to (default: gentoo)"
+      echo "  -ar, --account-repo: Repository to send PR to"
+      echo "  -c, --copy: Copy from that directory instead of cloning"
+      echo "  -o, --org: Organization to send PR to (default: gentoo)"
+      echo "  -d, --desc: Description of the PR"
+      echo "  -f, --files: Files to add to the PR"
+      echo "  -m, --message: PR message"
+      echo "  -b, --branch: Branch to send PR to (default: master)"
+      exit 0
+      ;;
     -a|--account)
       ACC="$2"
       shift # past argument
