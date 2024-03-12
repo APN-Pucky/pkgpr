@@ -98,8 +98,24 @@ if [ -z "${ACC}" ]; then
     exit 1
 fi
 
-# if no folder folder metadata/layout.conf exists abort, sicne must run on a gentoo repo
+PRPREFIX=""
 
+if [ -f ../metadata/layout.conf ]; then
+    PRPREFIX="$(basename $(pwd))/"
+    cd ..
+fi
+
+if [ -f ../../metadata/layout.conf ]; then
+    PRPREFIX="$(basename $(dirname $(pwd)))/$(basename $(pwd))/"
+    cd ../..
+fi
+
+if [ -f ../../metadata/layout.conf ]; then
+    PRPREFIX="$(basename $(dirname $(dirname $(pwd))))/$(basename $(dirname $(pwd)))/$(basename $(pwd))/"
+    cd ../../..
+fi
+
+# if no folder folder metadata/layout.conf exists abort, since must run on a gentoo repo
 if [ ! -f metadata/layout.conf ]; then
     echo "No metadata/layout.conf found, not a gentoo repo"
     exit 1
@@ -125,9 +141,9 @@ NB=pkgpr_${BRANCH}_$(date +%s)
 git checkout -b ${NB}
 
 for file in ${FILES[@]}; do
-    dfile=${file}
+    dfile=${PRPREFIX}${file}
     # rsync to merge
-    rsync -r ${OPWD}/${file} $(dirname ${dfile})/
+    rsync -r ${OPWD}/${dfile} $(dirname ${dfile})/
     # remove every .build file in the dir
     find ${dfile} -name ".build" -exec rm -rf {} \;
     git add ${dfile}
