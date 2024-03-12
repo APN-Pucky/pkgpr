@@ -27,6 +27,8 @@ while [[ $# -gt 0 ]]; do
       echo "  -f, --files: Files to add to the PR"
       echo "  -m, --message: PR message"
       echo "  -b, --branch: Branch to send PR to (default: master)"
+      echo ""
+      echo "Example: pkgpr -a APN-Pucky -r sci app-misc/foo"
       exit 0
       ;;
     -a|--account)
