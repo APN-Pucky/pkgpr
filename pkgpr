@@ -9,6 +9,8 @@ ACC=""
 URL="github.com"
 DESC="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
 FILES=()
+CLOSES=""
+BUG=""
 
 # from https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
@@ -21,15 +23,27 @@ while [[ $# -gt 0 ]]; do
       echo "  -u, --url: URL of the git server (default: github.com)"
       echo "  -r, --repo: Repository to send PR to (default: gentoo)"
       echo "  -ar, --account-repo: Repository to send PR to"
-      echo "  -c, --copy: Copy from that directory instead of cloning"
+      echo "  -c, --closes: Issue to close"
+      echo "  -b, --bug: Bug to reference"
+      echo "  -cp, --copy: Copy from that directory instead of cloning"
       echo "  -o, --org: Organization to send PR to (default: gentoo)"
       echo "  -d, --desc: Description of the PR"
       echo "  -f, --files: Files to add to the PR"
       echo "  -m, --message: PR message"
-      echo "  -b, --branch: Branch to send PR to (default: master)"
+      echo "  -br, --branch: Branch to send PR to (default: master)"
       echo ""
       echo "Example: pkgpr -a APN-Pucky -r sci app-misc/foo"
       exit 0
+      ;;
+    -c|--closes)
+      CLOSES="-c $2"
+      shift # past argument
+      shift # past value
+      ;;
+    -b|--bug)
+      BUG="-b $2"
+      shift # past argument
+      shift # past value
       ;;
     -a|--account)
       ACC="$2"
@@ -51,7 +65,7 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
-    -c|--copy)
+    -cp|--copy)
       COPY="$2"
       shift # past argument
       shift # past value
@@ -73,7 +87,7 @@ while [[ $# -gt 0 ]]; do
       shift # past value
       ;;
     # branch
-    -b|--branch)
+    -br|--branch)
       BRANCH="$2"
       shift # past argument
       shift # past value
@@ -153,9 +167,9 @@ git diff HEAD
 
 # if no message 
 if [ -z "${MESSAGE}" ]; then
-    pkgdev commit
+    pkgdev commit "${BUG}" "${CLOSES}"
 else
-    pkgdev commit -m "${MESSAGE}"
+    pkgdev commit "${BUG}" "${CLOSES}" -m "${MESSAGE}"
 fi
 
 
