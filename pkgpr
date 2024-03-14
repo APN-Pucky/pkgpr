@@ -155,7 +155,7 @@ else
     pkgdev commit -m "${MESSAGE}"
 fi
 
-# TODO show changes once more
+git diff HEAD~1
 
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
 
