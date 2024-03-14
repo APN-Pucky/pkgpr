@@ -148,6 +148,7 @@ for file in ${FILES[@]}; do
     find ${dfile} -name ".build" -exec rm -rf {} \;
     git add ${dfile}
 done
+git diff HEAD~1
 # if no message 
 if [ -z "${MESSAGE}" ]; then
     pkgdev commit
@@ -155,7 +156,6 @@ else
     pkgdev commit -m "${MESSAGE}"
 fi
 
-git diff HEAD~1
 
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
 
