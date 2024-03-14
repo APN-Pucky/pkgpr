@@ -148,7 +148,9 @@ for file in ${FILES[@]}; do
     find ${dfile} -name ".build" -exec rm -rf {} \;
     git add ${dfile}
 done
-git diff HEAD~1
+
+git diff HEAD
+
 # if no message 
 if [ -z "${MESSAGE}" ]; then
     pkgdev commit
