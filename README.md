@@ -16,7 +16,7 @@ Update a single (ebuild) file(s):
 ```
 user $ pkgpr -a APN-Pucky hepmc-3.2.6.ebuild hepmc-3.2.7.ebuild hepmc-9999.ebuild
 ```
-produces follwing [PR](https://github.com/gentoo/sci/pull/35745).
+produces following [PR](https://github.com/gentoo/sci/pull/35745).
 
 Submit new package:
 
@@ -24,4 +24,4 @@ Submit new package:
 user $ pkgpr -a APN-Pucky -r sci sci-physics/hoppet
 ```
 
-produces follwing [PR](https://github.com/gentoo/sci/pull/1242).
+produces following [PR](https://github.com/gentoo/sci/pull/1242).
