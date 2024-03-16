@@ -8,13 +8,13 @@ This is inspired by `eb --new-pr` [EasyBuild](https://docs.easybuild.io/contribu
 
 Needed:
 
-- dev-util/pkgdev
-- dev-util/github-cli
+- `dev-util/pkgdev`
+- `dev-util/github-cli`
 
 Optional:
 
-- app-admin/sudo
-- >=app-portage/pkg-testing-tools-0.2.3
+- `app-admin/sudo`
+- `>=app-portage/pkg-testing-tools-0.2.3`
 
 
 
