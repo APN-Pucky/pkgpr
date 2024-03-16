@@ -11,6 +11,8 @@ DESC="PR created by [pkgpr](https://github.com/APN-Pucky/pkgpr)."
 FILES=()
 CLOSES=""
 BUG=""
+TEST=""
+TEST_FLAGS="--test-feature-scope always"
 
 # from https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
@@ -34,6 +36,15 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Example: pkgpr -a APN-Pucky -r sci app-misc/foo"
       exit 0
+      ;;
+    -t|--test)
+      TEST="1"
+      shift
+      ;;
+    -tf|--test-flags)
+      TEST_FLAGS=$2
+      shift
+      shift
       ;;
     -c|--closes)
       CLOSES="-c $2"
@@ -142,8 +153,8 @@ echo "Adding files: ${FILES[@]} from ${OPWD}"
 pushd $(mktemp -d)
 # if COPY copy from that dir instead of clone fresh
 if [ -n "${COPY}" ]; then
-    echo "Copying from ${COPY}"
-    cp -r ${COPY} .
+    echo "Copying from ${COPY} to ${REPO}"
+    cp -r ${COPY} ./${REPO}
     echo "Copied"
 else
     git clone --depth 1 git@${URL}:${ORG}/${REPO}.git -b ${BRANCH}
@@ -154,26 +165,41 @@ git checkout ${BRANCH}
 NB=pkgpr_${BRANCH}_$(date +%s)
 git checkout -b ${NB}
 
+TEST_FILES=""
+
 for file in ${FILES[@]}; do
     dfile=${PRPREFIX}${file}
     # rsync to merge
     rsync -r ${OPWD}/${dfile} $(dirname ${dfile})/
     # remove every .build file in the dir
     find ${dfile} -name ".build" -exec rm -rf {} \;
+    # find .ebuilds to append to TEST_FILES
+    EBUILD_FILES=$(find ${dfile} -name "*.ebuild" -exec echo -n " -f {}" \;)
+    TEST_FILES="${TEST_FILES} ${EBUILD_FILES}"
+    # add to git
     git add ${dfile}
 done
 
 git diff HEAD
 
+if [ -n "${TEST}" ]; then
+    echo "sudo needed for testing: $ pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS}"
+    # portage needs that for executing in this folder (i.e. gen manifest), pkgdev commit needs original
+    sudo sh -c "chown portage:portage -R .. && pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS} && chown $USER:$USER -R .."
+fi
+
 # if no message 
 if [ -z "${MESSAGE}" ]; then
-    pkgdev commit "${BUG}" "${CLOSES}"
+    ARGS="${BUG} ${CLOSES}"
+    pkgdev commit ${ARGS}
 else
-    pkgdev commit "${BUG}" "${CLOSES}" -m "${MESSAGE}"
+    ARGS="${BUG} ${CLOSES} -m ${MESSAGE}"
+    pkgdev commit ${ARGS}
 fi
 
 
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
+
 
 read -p "Send PR? " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]

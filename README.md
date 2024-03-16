@@ -6,8 +6,17 @@ This is inspired by `eb --new-pr` [EasyBuild](https://docs.easybuild.io/contribu
 
 ## Dependencies
 
+Needed:
+
 - dev-util/pkgdev
 - dev-util/github-cli
+
+Optional:
+
+- app-admin/sudo
+- >=app-portage/pkg-testing-tools-0.2.3
+
+
 
 ## Example
 
@@ -25,3 +34,7 @@ user $ pkgpr -a APN-Pucky -r sci sci-physics/hoppet
 ```
 
 produces following [PR](https://github.com/gentoo/sci/pull/1242).
+
+## Testing
+
+Automatic testing before commiting is possible with the `--test` flag that triggers `pkg-testing-tool`.
