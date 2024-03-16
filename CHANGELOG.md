@@ -7,15 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2024-03-16
+
 ### Added
 
 - test and test-flags parameter
 
-## [0.0.5] - 2024-03-16
+## [0.0.5] - 2024-03-14
 
 ### Added
 
 - bug/closes parameter
 
-[unreleased]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.5...HEAD
+[unreleased]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.6...HEAD
+[0.0.6]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.1...v0.0.5
