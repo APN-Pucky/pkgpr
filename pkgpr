@@ -196,11 +196,11 @@ fi
 # 3. test it
 if [ -n "${TEST}" ]; then
     echo "sudo needed for testing: $ pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS}"
-    REPONAME=$(cat ./profile/repo_name)
-    echo "tmp${REPONAME}" > ./profile/repo_name
+    REPONAME=$(cat ./profiles/repo_name)
+    echo "tmp${REPONAME}" > ./profiles/repo_name
     # portage needs that for executing in this folder (i.e. gen manifest), pkgdev commit needs original
-    sudo sh -c "chown portage:portage -R .. && pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS} && chown $USER:$USER -R .."
-    echo "${REPONAME}" > ./profile/repo_name
+    sudo sh -c "chown portage:portage -R .. ; pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS} ; chown $USER:$USER -R .."
+    echo "${REPONAME}" > ./profiles/repo_name
 fi
 
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
