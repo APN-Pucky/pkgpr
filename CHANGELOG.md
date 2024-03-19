@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- -nc/--no-cleanup parameter to keep temporary repo for debugging
+
+### Changed
+
+- the temporary repo is deleted at the end
+
 ## [0.0.8] - 2024-03-17
 
 ### Fixed
@@ -26,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - bug/closes parameter
 
-[unreleased]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.6...HEAD
+[unreleased]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.8...HEAD
+[0.0.8]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.5...v0.0.6
 [0.0.6]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.1...v0.0.5
