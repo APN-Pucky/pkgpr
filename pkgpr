@@ -174,7 +174,8 @@ git checkout -b ${NB}
 TEST_FILES=""
 
 for file in ${FILES[@]}; do
-    dfile=${PRPREFIX}${file}
+    # we remove the trailing slash from folders for proper rsync copy of the whole folder
+    dfile=${PRPREFIX}${file%/}
     # rsync to merge
     rsync -r ${OPWD}/${dfile} $(dirname ${dfile})/
     # remove every .build file in the dir
