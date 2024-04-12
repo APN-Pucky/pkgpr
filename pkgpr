@@ -1,5 +1,6 @@
 #!/bin/bash
 
+SYNC="rsync"
 MESSAGE=""
 BRANCH="master"
 FILES=""
@@ -29,6 +30,7 @@ while [[ $# -gt 0 ]]; do
       echo "  -c, --closes: Issue to close"
       echo "  -b, --bug: Bug to reference"
       echo "  -cp, --copy: Copy from that directory instead of cloning"
+      echo "  --sync: rsync (w/o deletes) or cp (w/ deletes) to sync changes (default: rsync)"
       echo "  -o, --org: Organization to send PR to (default: gentoo)"
       echo "  -d, --desc: Description of the PR"
       echo "  -f, --files: Files to add to the PR"
@@ -45,6 +47,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -tf|--test-flags)
       TEST_FLAGS=$2
+      shift
+      shift
+      ;;
+    --sync)
+      SYNC=$2
       shift
       shift
       ;;
@@ -177,7 +184,7 @@ for file in ${FILES[@]}; do
     # we remove the trailing slash from folders for proper rsync copy of the whole folder
     dfile=${PRPREFIX}${file%/}
     # rsync to merge
-    rsync -r ${OPWD}/${dfile} $(dirname ${dfile})/
+    $SYNC -r ${OPWD}/${dfile} $(dirname ${dfile})/
     # remove every .build file in the dir
     find ${dfile} -name ".build" -exec rm -rf {} \;
     # find .ebuilds to append to TEST_FILES
