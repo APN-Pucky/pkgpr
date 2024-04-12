@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SYNC="rsync"
+SYNC="rsync -ra"
 MESSAGE=""
 BRANCH="master"
 FILES=""
@@ -15,6 +15,7 @@ BUG=""
 NO_CLEANUP=""
 TEST=""
 TEST_FLAGS="--test-feature-scope always"
+DEBUG=""
 
 # from https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
@@ -30,7 +31,7 @@ while [[ $# -gt 0 ]]; do
       echo "  -c, --closes: Issue to close"
       echo "  -b, --bug: Bug to reference"
       echo "  -cp, --copy: Copy from that directory instead of cloning"
-      echo "  --sync: rsync (w/o deletes) or cp (w/ deletes) to sync changes (default: rsync)"
+      echo "  --sync: rsync -ra (w/o deletes) or rsync -ra --delete (w/ deletes) to sync changes (default: rsync -ra)"
       echo "  -o, --org: Organization to send PR to (default: gentoo)"
       echo "  -d, --desc: Description of the PR"
       echo "  -f, --files: Files to add to the PR"
@@ -43,6 +44,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -t|--test)
       TEST="1"
+      shift
+      ;;
+    -d|--debug)
+      DEBUG="1"
       shift
       ;;
     -tf|--test-flags)
@@ -184,7 +189,8 @@ for file in ${FILES[@]}; do
     # we remove the trailing slash from folders for proper rsync copy of the whole folder
     dfile=${PRPREFIX}${file%/}
     # rsync to merge
-    $SYNC -r ${OPWD}/${dfile} $(dirname ${dfile})/
+    [ -n DEBUG ] && echo "$SYNC ${OPWD}/${dfile} $(dirname ${dfile})/"
+    $SYNC ${OPWD}/${dfile} $(dirname ${dfile})/
     # remove every .build file in the dir
     find ${dfile} -name ".build" -exec rm -rf {} \;
     # find .ebuilds to append to TEST_FILES
