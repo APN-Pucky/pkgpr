@@ -38,3 +38,7 @@ produces following [PR](https://github.com/gentoo/sci/pull/1242).
 ## Testing
 
 Automatic testing before commiting is possible with the `--test` flag that triggers `pkg-testing-tool`.
+
+## Configuration
+
+Just write yourself a script or alias.
