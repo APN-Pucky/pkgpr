@@ -1,5 +1,6 @@
 #!/bin/bash
 
+VERSION="0.0.12"
 SYNC="rsync -ra"
 MESSAGE=""
 BRANCH="master"
@@ -14,14 +15,17 @@ CLOSES=""
 BUG=""
 NO_CLEANUP=""
 TEST=""
-TEST_FLAGS="--test-feature-scope always"
+TEST_FLAGS='--test-feature-scope always --append-emerge "--autounmask=y --autounmask-write --autounmask-continue --autounmask-use=y"'
 DEBUG=""
+YES=""
+# was used to toggle tmp directory usage, but only tmp is supported for testing
+TMP=""
 
 # from https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
-      echo "Usage: pkgpr [options] [files]"
+      echo "Usage: pkgpr-$VERSION [options] [files]"
       echo "Options:"
       echo "  -h, --help: Show this help"
       echo "  -a, --account: Account to send PR to"
@@ -35,15 +39,33 @@ while [[ $# -gt 0 ]]; do
       echo "  -o, --org: Organization to send PR to (default: gentoo)"
       echo "  -d, --desc: Description of the PR"
       echo "  -f, --files: Files to add to the PR"
-      echo "  -m, --message: PR message"
+      echo "  -m, --message: commit message"
       echo "  -br, --branch: Branch to send PR to (default: master)"
       echo "  -nc, --no-cleanup: Do not cleanup the tmp repo after PR"
+      echo "  -v, --version: Show version"
+      echo "  -y, --yes: Skip confirmation. Won't show diff and will send PR immediately, unless pkgdev commit message is needed"
+      echo "  -t, --test: Test the PR with pkg-testing-tool. Implies --tmp (default: false)"
+      echo "  -tf, --test-flags: Flags to pass to pkg-testing-tool (default: $TEST_FLAGS)"
+      echo "  --tmp: Use a tmp directory for the repo. Useful for parallel PRs and testing"
       echo ""
       echo "Example: pkgpr -a APN-Pucky -r sci app-misc/foo"
       exit 0
       ;;
+    --tmp)
+      TMP="1"
+      shift
+      ;;
+    -y|--yes)
+      YES="1"
+      shift
+      ;;
+    -v|--version)
+      echo "pkgpr-$VERSION"
+      exit 0
+      ;;
     -t|--test)
       TEST="1"
+      TMP="1"
       shift
       ;;
     -d|--debug)
@@ -160,26 +182,37 @@ fi
 
 # if no folder folder metadata/layout.conf exists abort, since must run on a gentoo repo
 if [ ! -f metadata/layout.conf ]; then
-    echo "No metadata/layout.conf found, not a gentoo repo"
+    echo "No metadata/layout.conf found, not a gentoo repo."
+    echo "It is recommended to run this script inside of a gentoo repository."
     exit 1
 fi
 
 OPWD=${PWD}
 echo "Adding files: ${FILES[@]} from ${OPWD}"
 
-TEMP_DIR=$(mktemp -d)
-pushd ${TEMP_DIR}
-# if COPY copy from that dir instead of clone fresh
-if [ -n "${COPY}" ]; then
-    echo "Copying from ${COPY} to ${REPO}"
-    cp -r ${COPY} ./${REPO}
-    echo "Copied"
+cache_dir="${HOME}/.cache/pkgpr"
+mkdir -p ${cache_dir}/${URL}/${ORG}
+if [ ! -d ${cache_dir}/${URL}/${ORG}/${REPO} ]; then
+  # clone the repo to cache if it does not exist
+  git -C ${cache_dir}/${URL}/${ORG} clone --depth 1 git@${URL}:${ORG}/${REPO}.git -b ${BRANCH}
 else
-    git clone --depth 1 git@${URL}:${ORG}/${REPO}.git -b ${BRANCH}
+  # update the repo in cache
+  git -C ${cache_dir}/${URL}/${ORG}/${REPO} fetch origin ${BRANCH}
 fi
 
-cd ${REPO}
-git checkout ${BRANCH}
+if [ -n "${TMP}" ]; then
+  TEMP_DIR=$(mktemp -d)
+  pushd ${TEMP_DIR}
+#  copy the repo to the temp dir
+  cp -r ${cache_dir}/${URL}/${ORG}/${REPO} ./${REPO}
+  cd ${REPO}
+else
+  pushd ${cache_dir}/${URL}/${ORG}/${REPO}
+fi
+
+# checkout the base branch
+git checkout -f origin/${BRANCH}
+# create a new branch
 NB=pkgpr_${BRANCH}_$(date +%s)
 git checkout -b ${NB}
 
@@ -201,7 +234,10 @@ for file in ${FILES[@]}; do
 done
 
 # 1. Review diff first
-git diff HEAD
+if [[ -z "${YES}" ]]
+then
+  git diff origin/${BRANCH}
+fi
 
 # 2. then quickly show trivial typos
 # if no message 
@@ -217,17 +253,20 @@ fi
 if [ -n "${TEST}" ]; then
     echo "sudo needed for testing: $ pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS}"
     REPONAME=$(cat ./profiles/repo_name)
-    echo "tmp${REPONAME}" > ./profiles/repo_name
+    echo "pkgpr-${REPONAME}" > ./profiles/repo_name
     # portage needs that for executing in this folder (i.e. gen manifest), pkgdev commit needs original
-    sudo sh -c "chown portage:portage -R .. ; pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS} ; chown $USER:$USER -R .."
+    sudo sh -c "chown portage:portage -R .. ; pkg-testing-tool ${TEST_FILES} ${TEST_FLAGS} ; chown $USER:$USER -R .." || exit 1 # exit on error or failure or interupt
     echo "${REPONAME}" > ./profiles/repo_name
 fi
 
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
 
 
-read -p "Send PR? " -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]
+if [[ -z "${YES}" ]]
+then
+  read -p "Send PR? [y]" -n 1 -r
+fi
+if [[ $REPLY =~ ^[Yy]*$ ]]
 then
   git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="${DESC}"
   # github does not use the options like gitlab
@@ -237,7 +276,10 @@ then
     gh pr create -R ${ORG}/${REPO} --fill --base ${BRANCH} --head ${ACC}:${NB} --body "${DESC}"
   fi
 fi
+
 popd
-if [ -z "${NO_CLEANUP}" ]; then
+
+# Only cleanup if in tmp mode
+if [[ -n "${TMP}" && -n "${TEMP_DIR}" && -z "${NO_CLEANUP}" ]]; then
     rm -rf ${TEMP_DIR}
 fi

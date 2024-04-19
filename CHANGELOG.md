@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `-v/--version` to show version
+- `--tmp` to force usage of temporary repo
+- `-y/--yes` to answer yes to all questions and skip diff prompt
+
+### Changed
+
+- repositories are now cached in ${HOME}/.cache/pkgpr
+- `--test` implies `--tmp`
+- new default `--test-flags`
+- terminate on error in `--test`
+
+## [0.0.12]
+
+### Added
+
 - -nc/--no-cleanup parameter to keep temporary repo for debugging
 
 ### Changed
@@ -34,7 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - bug/closes parameter
 
-[unreleased]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.8...HEAD
-[0.0.8]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.5...v0.0.6
+[unreleased]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.12...HEAD
+[0.0.12]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.8...v0.0.12
+[0.0.8]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.6...v0.0.8
 [0.0.6]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/APN-Pucky/pkgpr/compare/v0.0.1...v0.0.5
