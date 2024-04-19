@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--test` implies `--tmp`
 - new default `--test-flags`
 - terminate on error in `--test`
+- `checkout -f origin/branch` instead of `check HEAD`
 
 ## [0.0.12]
 
