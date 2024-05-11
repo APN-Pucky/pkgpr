@@ -274,7 +274,7 @@ git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
 if [[ -n "${DRAFT}" ]] 
 then
   GITHUB_OPT="${GITHUB_OPT} --draft"
-  GITLAB_OPT="${GITLAB_OPT} merge_request.draft"
+  GITLAB_OPT="${GITLAB_OPT} -o merge_request.draft"
 fi
 
 if [[ -z "${YES}" ]]
