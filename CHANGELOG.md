@@ -7,35 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.12]
+
 ### Added
 
+- -nc/--no-cleanup parameter to keep temporary repo for debugging
 - `-v/--version` to show version
 - `--tmp` to force usage of temporary repo
 - `-y/--yes` to answer yes to all questions and skip diff prompt
 
 ### Changed
 
+- the temporary repo is deleted at the end
 - repositories are now cached in ${HOME}/.cache/pkgpr
 - `--test` implies `--tmp`
 - new default `--test-flags`
 - terminate on error in `--test`
 - `checkout -f origin/branch` instead of `check HEAD`
 
-## [0.0.12]
-
-### Added
-
-- -nc/--no-cleanup parameter to keep temporary repo for debugging
-
-### Changed
-
-- the temporary repo is deleted at the end
-
 ## [0.0.8] - 2024-03-17
 
 ### Fixed
 
-- prefix ./profiles/repo_name of temporary repo by 'tmp' to avoid collisions with --test
+- prefix `./profiles/repo_name` of temporary repo by 'tmp' to avoid collisions with --test
 - use ';' isntead of '&&' in sudo run to make sure permissions of tmp repo are back right
 
 ## [0.0.6] - 2024-03-16
