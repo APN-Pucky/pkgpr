@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- --draft parameter to create PR as a draft
+
 ## [0.0.12]
 
 ### Added
