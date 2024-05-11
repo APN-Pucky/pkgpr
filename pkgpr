@@ -20,6 +20,11 @@ DEBUG=""
 YES=""
 # was used to toggle tmp directory usage, but only tmp is supported for testing
 TMP=""
+DRAFT=""
+
+
+GITLAB_OPT=""
+GITHUB_OPT=""
 
 # from https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
@@ -38,6 +43,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --sync: rsync -ra (w/o deletes) or rsync -ra --delete (w/ deletes) to sync changes (default: rsync -ra)"
       echo "  -o, --org: Organization to send PR to (default: gentoo)"
       echo "  -d, --desc: Description of the PR"
+      echo "  --draft: PR should be a draft"
       echo "  -f, --files: Files to add to the PR"
       echo "  -m, --message: commit message"
       echo "  -br, --branch: Branch to send PR to (default: master)"
@@ -50,6 +56,10 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Example: pkgpr -a APN-Pucky -r sci app-misc/foo"
       exit 0
+      ;;
+    --draft)
+      DRAFT="1"
+      shift
       ;;
     --tmp)
       TMP="1"
@@ -261,6 +271,11 @@ fi
 
 git remote add pkgpr_${ACC} git@${URL}:${ACC}/${AREPO}.git
 
+if [[ -n "${DRAFT}" ]] 
+then
+  GITHUB_OPT="${GITHUB_OPT} --draft"
+  GITLAB_OPT="${GITLAB_OPT} -o merge_request.draft"
+fi
 
 if [[ -z "${YES}" ]]
 then
@@ -268,12 +283,12 @@ then
 fi
 if [[ $REPLY =~ ^[Yy]*$ ]]
 then
-  git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="${DESC}"
+  git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="${DESC}" ${GITLAB_OPT}
   # github does not use the options like gitlab
   # check if github in URL
   if [[ ${URL} == "github.com" ]]; then
     echo "Github detected, opening PR"
-    gh pr create -R ${ORG}/${REPO} --fill --base ${BRANCH} --head ${ACC}:${NB} --body "${DESC}"
+    gh pr create -R ${ORG}/${REPO} --fill --base ${BRANCH} --head ${ACC}:${NB} --body "${DESC}" ${GITHUB_OPT}
   fi
 fi
 
