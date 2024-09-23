@@ -7,18 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- --draft parameter to create PR as a draft
-
-## [0.0.12]
+## [0.0.13] - 2024-09-23
 
 ### Added
 
-- -nc/--no-cleanup parameter to keep temporary repo for debugging
-- `-v/--version` to show version
+- `-ck`/`--check-boxes` to tick policy gentoo boxes
+- `--draft` parameter to create PR as a draft
+
+## [0.0.12] - 2024-04-19
+
+### Added
+
+- `-nc`/`--no-cleanup` parameter to keep temporary repo for debugging
+- `-v`/`--version` to show version
 - `--tmp` to force usage of temporary repo
-- `-y/--yes` to answer yes to all questions and skip diff prompt
+- `-y`/`--yes` to answer yes to all questions and skip diff prompt
 
 ### Changed
 

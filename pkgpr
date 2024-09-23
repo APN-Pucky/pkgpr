@@ -1,6 +1,6 @@
 #!/bin/bash
 # TODO expose these also as environment variables like `BRANCH=master pkgpr ...`?
-VERSION="0.0.12"
+VERSION="0.0.13"
 SYNC="rsync -ra"
 MESSAGE=""
 BRANCH="master"
