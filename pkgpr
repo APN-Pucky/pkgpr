@@ -14,6 +14,7 @@ FILES=()
 CLOSES=""
 BUG=""
 NO_CLEANUP=""
+CHECKBOXES=""
 TEST=""
 TEST_FLAGS='--test-feature-scope always --append-emerge "--autounmask=y --autounmask-write --autounmask-continue --autounmask-use=y"'
 DEBUG=""
@@ -53,6 +54,7 @@ while [[ $# -gt 0 ]]; do
       echo "  -t, --test: Test the PR with pkg-testing-tool. Implies --tmp (default: false)"
       echo "  -tf, --test-flags: Flags to pass to pkg-testing-tool (default: $TEST_FLAGS)"
       echo "  --tmp: Use a tmp directory for the repo. Useful for parallel PRs and testing"
+      echo "  -cb, --check-boxes: Append checked Copyright Policy, Signed-off-by, AI policy and issue check to PR"
       echo ""
       echo "Example: pkgpr -a APN-Pucky -r sci app-misc/foo"
       exit 0
@@ -135,6 +137,10 @@ while [[ $# -gt 0 ]]; do
     -d|--desc)
         DESC="$2"
         shift # past argument
+        shift # past value
+        ;;
+    -cb|--check-boxes)
+        CHECKBOXES="1"
         shift # past value
         ;;
     # message
@@ -277,18 +283,36 @@ then
   GITLAB_OPT="${GITLAB_OPT} -o merge_request.draft"
 fi
 
+if [ -n "${CHECKBOXES}" ]; then
+    DESC+=$(cat <<'EOF'
+
+
+---
+
+Please check all the boxes that apply:
+
+- [x] I can submit this contribution in agreement with the [Copyright Policy](https://www.gentoo.org/glep/glep-0076.html#certificate-of-origin).
+- [x] I have certified the above via adding a `Signed-off-by` line to *every* commit in the pull request.
+- [x] This contribution has not been created with the assistance of Natural Language Processing artificial intelligence tools, in accordance with the [AI policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy).
+- [x] I have run `pkgcheck scan --commits --net` to check for issues with my commits.
+
+Please note that all boxes must be checked for the pull request to be merged.
+EOF
+    )
+fi
+
 if [[ -z "${YES}" ]]
 then
   read -p "Send PR? [y]" -n 1 -r
 fi
 if [[ $REPLY =~ ^[Yy]*$ ]]
 then
-  git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="${DESC}" ${GITLAB_OPT}
+  git push -u pkgpr_${ACC} ${NB} -o merge_request.create -o merge_request.target_project=${ORG}/${REPO} -o merge_request.target=${BRANCH} -o merge_request.remove_source_branch -o merge_request.description="$(echo ${DESC} | sed ':a;N;$!ba;s/\n/\\n/g')" ${GITLAB_OPT} # https://gitlab.com/gitlab-org/gitlab/-/issues/241710
   # github does not use the options like gitlab
   # check if github in URL
   if [[ ${URL} == "github.com" ]]; then
     echo "Github detected, opening PR"
-    gh pr create -R ${ORG}/${REPO} --fill --base ${BRANCH} --head ${ACC}:${NB} --body "${DESC}" ${GITHUB_OPT}
+    echo "${DESC}" | gh pr create -R ${ORG}/${REPO} --fill --base ${BRANCH} --head ${ACC}:${NB} --body-file - ${GITHUB_OPT}
   fi
 fi
 
